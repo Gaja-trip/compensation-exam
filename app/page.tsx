@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { type VisualLesson } from "./drive-data";
+import { VisualCasebook, VisualLessonModal } from "./visual-components";
 
 type IconName =
   | "grid"
@@ -46,6 +48,8 @@ const navItems: { id: string; label: string; icon: IconName }[] = [
   { id: "saved", label: "내 북마크", icon: "bookmark" },
 ];
 
+navItems.push({ id: "visuals", label: "시각 해설서", icon: "book" });
+
 const cases = [
   { id: 1, year: "2020", subject: "민법", title: "물권의 본질을 둘러싼 첫 공방", detail: "공신의 원칙은 물권의 의의에 포함될까?", tag: "기초 개념", tone: "coral" },
   { id: 2, year: "2020", subject: "부동산관계법규", title: "도시계획시설, 멈춘 시간의 값", detail: "장기미집행 시설부지의 실효와 매수청구", tag: "보상 실무", tone: "blue" },
@@ -61,6 +65,7 @@ export default function Home() {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [completedCase, setCompletedCase] = useState(false);
+  const [selectedLesson, setSelectedLesson] = useState<VisualLesson | null>(null);
 
   const filteredCases = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -77,6 +82,8 @@ export default function Home() {
     setCompletedCase(true);
     setIsCaseOpen(false);
   };
+
+  const openLesson = (lesson: VisualLesson) => setSelectedLesson(lesson);
 
   return (
     <main className="app-shell">
@@ -187,10 +194,12 @@ export default function Home() {
           {activeNav === "casefiles" && <CaseFiles cases={filteredCases} onOpen={openCase} query={query} />}
           {activeNav === "study" && <StudyRoutine onOpen={openCase} />}
           {activeNav === "saved" && <SavedCases isBookmarked={isBookmarked} onOpen={openCase} />}
+          {activeNav === "visuals" && <VisualCasebook onOpen={openLesson} />}
         </div>
       </section>
 
       {isCaseOpen && <CaseModal selectedAnswer={selectedAnswer} setSelectedAnswer={setSelectedAnswer} completedCase={completedCase} onClose={() => setIsCaseOpen(false)} onFinish={finishCase} />}
+      {selectedLesson && <VisualLessonModal lesson={selectedLesson} onClose={() => setSelectedLesson(null)} />}
     </main>
   );
 }
