@@ -50,6 +50,16 @@ const landImages = [
   image("1Srg8ZuVLnScdWFZAd39zCFNloOP03OBj", "보상관리사_민법_토지소유권_아이소메트릭3D_08_토지사용_절차와보상.png"),
   image("1r64zBQo8x4i9YB_4zWEEnDWY--lXORD_", "보상관리사_민법_토지소유권_아이소메트릭3D_09_우연히분리된광물_예외.png"),
   image("10fKIjVS_pN34WQB1iE_tsSSq_L1Z89B6", "보상관리사_민법_토지소유권_아이소메트릭3D_10_핵심정리.png"),
+  image("1MyPUJYeFnWtvoXmhzRCVu5Fj9ooVlren", "보상관리사_민법_토지소유권_01_땅속금도내것일까.png"),
+  image("19eguQnUY1USO-orgRqKuWmo2trBgsEcd", "보상관리사_민법_토지소유권_02_민법212조_토지상하_정당한이익.png"),
+  image("1htv1jKWxPZXWEZYQ4AcmvR6YG4W7x106", "보상관리사_민법_토지소유권_03_광물은_특별법_예외.png"),
+  image("1NaPxBYaFWMirZTHjIHCn4OQq0U_4XGHj", "보상관리사_민법_토지소유권_04_광업법_채굴권_핵심.png"),
+  image("13cHbs90QVp1JofFRKT8qL9O_5TRoRVQv", "보상관리사_민법_토지소유권_05_만화_산을산갑_금맥발견.png"),
+  image("1Zu0tvSHKouN3rQeicJ77u7vxdRSaU6Um", "보상관리사_민법_토지소유권_06_만화_채굴권있어야_채굴가능.png"),
+  image("1VVlHoZhHB5Qz0RoI_axjH2Tl7nhQ66rs", "보상관리사_민법_토지소유권_07_토지소유권과_채굴권_구별.png"),
+  image("1UEiJycbYz7zq2-zoVb37SuA_OArB89PF", "보상관리사_민법_토지소유권_08_광업권자_토지사용_절차와보상.png"),
+  image("1A_Zu5H4YxW6H0sKBFvsof5h2GnYP3nhj", "보상관리사_민법_토지소유권_09_우연히분리된광물_예외.png"),
+  image("1r190zKGmu1zKw0U2tpSiZPpbhSjPde3X", "보상관리사_민법_토지소유권_10_시험직전_3줄암기.png"),
 ];
 
 const possessionImages = [
@@ -122,4 +132,3 @@ export const visualLessons: VisualLesson[] = [
     sourceUrl: examSource,
   },
 ];
-
