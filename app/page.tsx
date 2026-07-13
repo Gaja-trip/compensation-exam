@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import {
   examLabel,
@@ -12,6 +13,7 @@ import {
   visualLessonByQuestionId,
 } from "./exam-data";
 import { type VisualLesson, visualLessons } from "./drive-data";
+import { questionStoryById, type QuestionStoryExplanation } from "./question-explanations";
 import { VisualCasebook, VisualLessonModal } from "./visual-components";
 
 type IconName =
@@ -439,10 +441,54 @@ function QuestionPreview({ question, onOpen }: { question: ExamQuestion; onOpen:
   return <article className="question-preview"><div className="question-preview-number">{String(question.number).padStart(2, "0")}</div><div className="question-preview-copy"><span className="exam-preview-meta">{question.year}년 {question.phase}차 · {question.subject}</span><h4>{question.stem}</h4><p>{questionDirection(question.stem)}</p></div><button className="small-arrow" onClick={() => onOpen(question)} aria-label={`${examLabel(question)} 풀기`}><Icon name="arrow" size={16} /></button></article>;
 }
 
+function QuestionStory({ story }: { story: QuestionStoryExplanation }) {
+  return (
+    <section className="question-story" aria-labelledby="question-story-title">
+      <header className="question-story-header">
+        <p className="eyebrow">{story.eyebrow}</p>
+        <h3 id="question-story-title">{story.title}</h3>
+        <p>{story.lead}</p>
+      </header>
+
+      <figure className="question-story-figure">
+        <a href={story.image.src} target="_blank" rel="noreferrer" aria-label="각색 해설 이미지를 원본 크기로 열기">
+          <Image src={story.image} alt={story.imageAlt} sizes="(max-width: 780px) calc(100vw - 64px), 860px" />
+          <span>이미지 크게 보기 ↗</span>
+        </a>
+        <figcaption>{story.imageCaption}</figcaption>
+      </figure>
+
+      <div className="question-story-cast" aria-label="각색 해설 등장인물">
+        {story.cast.map((person) => <span key={person.name}><b>{person.name}</b>{person.role}</span>)}
+      </div>
+
+      <ol className="question-story-scenes">
+        {story.scenes.map((scene) => (
+          <li key={scene.label}>
+            <div className="question-story-scene-heading"><span>{scene.label}</span><h4>{scene.title}</h4></div>
+            <div className="question-story-dialogue">
+              {scene.lines.map((line, index) => <p key={`${scene.label}-${line.speaker}-${index}`}><b>{line.speaker}</b><span>{line.text}</span></p>)}
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <div className="question-story-points">
+        <div><p className="eyebrow">EXAM CHECK</p><h4>중학생도 바로 기억하는 핵심 정리</h4></div>
+        <dl>{story.examPoints.map((point) => <div key={point.label}><dt>{point.label}</dt><dd>{point.text}</dd></div>)}</dl>
+      </div>
+
+      <aside className="question-story-note"><b>표현 바로잡기</b><p>{story.accuracyNote}</p></aside>
+      <a className="question-story-source" href={story.statuteUrl} target="_blank" rel="noreferrer">{story.statuteLabel} <span aria-hidden="true">↗</span></a>
+    </section>
+  );
+}
+
 function QuestionModal({ question, selectedAnswer, answerRevealed, isBookmarked, onChoose, onClose, onNext, onToggleBookmark, onOpenVisualLesson }: { question: ExamQuestion; selectedAnswer: number | null; answerRevealed: boolean; isBookmarked: boolean; onChoose: (answerIndex: number) => void; onClose: () => void; onNext: () => void; onToggleBookmark: (questionId: string) => void; onOpenVisualLesson: (question: ExamQuestion) => void }) {
   const isCorrect = selectedAnswer === question.answerIndex;
   const officialExplanation = question.officialNote || `원문 정답표에는 이 문항의 해설이 수록되어 있지 않습니다. 정답 ${question.answerIndex + 1}번 선지의 요건을 지문에서 다시 확인해 보세요.`;
   const visualLessonAvailable = Boolean(visualLessonByQuestionId[question.id]);
+  const questionStory = questionStoryById[question.id];
 
   useEffect(() => {
     const closeWithEscape = (event: KeyboardEvent) => {
@@ -468,6 +514,8 @@ function QuestionModal({ question, selectedAnswer, answerRevealed, isBookmarked,
         {answerRevealed && <section className={`feedback exam-feedback ${isCorrect ? "correct" : "wrong"}`}><div className="feedback-icon"><Icon name={isCorrect ? "check" : "close"} size={17} /></div><div><strong>{isCorrect ? "정답입니다. 근거까지 확인해 보세요." : "오답이에요. 아래 순서로 다시 정리해 보세요."}</strong><p>{isCorrect ? "정답 선지와 정답표의 근거가 일치하는지 확인해 보세요." : "선택한 선지보다 정답 선지가 왜 지문에 더 정확히 맞는지 비교해 보세요."}</p></div></section>}
 
         {answerRevealed && <section className="easy-solution"><div className="easy-solution-header"><div><p className="eyebrow">EASY SOLUTION</p><h3>3단계로 정리하기</h3></div><span>{question.officialNote ? "정답표 해설" : "정답표 기준"}</span></div><ol><li><span>01</span><div><b>질문 방향 확인</b><p>{questionDirection(question.stem)}</p></div></li><li><span>02</span><div><b>정답 선지 확인</b><p><strong>{question.answerIndex + 1}번</strong> {question.choices[question.answerIndex]}</p></div></li><li><span>03</span><div><b>근거 되짚기</b><p>{officialExplanation}</p></div></li></ol></section>}
+
+        {answerRevealed && questionStory && <QuestionStory story={questionStory} />}
 
         {answerRevealed && <details className="source-details"><summary>원문 출처와 페이지 확인</summary><p>문제지: {question.source.questionPdf} · p.{question.source.questionPage}</p><p>정답표: {question.source.answerPdf} · p.{question.source.answerPage}</p></details>}
 
