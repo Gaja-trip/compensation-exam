@@ -16,6 +16,20 @@ function DriveImageFrame({ image, className = "" }: { image: DriveImage; classNa
   );
 }
 
+function ImageLightbox({ image, onClose }: { image: DriveImage; onClose: () => void }) {
+  return (
+    <div className="image-lightbox-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <section className="image-lightbox" role="dialog" aria-modal="true" aria-labelledby="image-lightbox-title">
+        <div className="image-lightbox-header">
+          <div><p className="eyebrow">VISUAL EXPLANATION · EXPANDED VIEW</p><h2 id="image-lightbox-title">{image.sceneLabel}</h2></div>
+          <div className="image-lightbox-actions"><a href={image.driveUrl} target="_blank" rel="noreferrer">Drive 원본 열기 <Arrow /></a><button className="modal-close" onClick={onClose} aria-label="확대 이미지 닫기">×</button></div>
+        </div>
+        <div className="image-lightbox-media"><img src={image.largeThumbnail} alt={image.sceneLabel} referrerPolicy="no-referrer" /></div>
+      </section>
+    </div>
+  );
+}
+
 export function VisualCasebook({ onOpen }: { onOpen: (lesson: VisualLesson) => void }) {
   const [activeId, setActiveId] = useState("all");
   const filtered = activeId === "all" ? visualLessons : visualLessons.filter((lesson) => lesson.id === activeId);
@@ -59,21 +73,25 @@ export function VisualCasebook({ onOpen }: { onOpen: (lesson: VisualLesson) => v
 
 export function VisualLessonModal({ lesson, onClose }: { lesson: VisualLesson; onClose: () => void }) {
   const [activeScene, setActiveScene] = useState(0);
+  const [isImageExpanded, setIsImageExpanded] = useState(false);
   const scene = lesson.images[activeScene];
 
   return (
-    <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <section className={`lesson-modal ${lesson.tone}`} role="dialog" aria-modal="true" aria-labelledby="visual-lesson-title">
-        <div className="lesson-modal-header"><div><p className="eyebrow">VISUAL EXPLANATION · {lesson.questionLabel}</p><h2 id="visual-lesson-title">{lesson.title}</h2></div><button className="modal-close" onClick={onClose} aria-label="닫기">×</button></div>
-        <div className="lesson-progress"><span style={{ width: `${((activeScene + 1) / lesson.images.length) * 100}%` }} /></div>
-        <div className="lesson-main-grid">
-          <div className="lesson-stage"><DriveImageFrame image={scene} className="lesson-stage-image" /><div className="lesson-stage-count">SCENE {String(activeScene + 1).padStart(2, "0")} / {String(lesson.images.length).padStart(2, "0")}</div></div>
-          <div className="lesson-explanation"><span className="lesson-kicker">{lesson.statute}</span><h3>이 장면에서<br /><em>기억할 한 문장</em></h3><p>{lesson.answer}</p><div className="lesson-question-box"><span>문제와 연결</span><strong>{lesson.questionLabel}</strong><p>{lesson.summary}</p></div><a className="source-link" href={lesson.sourceUrl} target="_blank" rel="noreferrer">기출 원문 PDF 보기 <Arrow /></a></div>
-        </div>
-        <div className="scene-strip" aria-label="해설 장면 목록">{lesson.images.map((image, index) => <button key={image.id} className={activeScene === index ? "active" : ""} onClick={() => setActiveScene(index)}><img src={image.thumbnail} alt="" loading="lazy" referrerPolicy="no-referrer" /><span>{String(index + 1).padStart(2, "0")}</span></button>)}</div>
-        <div className="lesson-modal-footer"><span>장면을 클릭하면 Drive 원본으로 이동합니다.</span><button className="primary-button" onClick={onClose}>해설서 닫기 <Arrow /></button></div>
-      </section>
-    </div>
+    <>
+      {!isImageExpanded && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+        <section className={`lesson-modal ${lesson.tone}`} role="dialog" aria-modal="true" aria-labelledby="visual-lesson-title">
+          <div className="lesson-modal-header"><div><p className="eyebrow">VISUAL EXPLANATION · {lesson.questionLabel}</p><h2 id="visual-lesson-title">{lesson.title}</h2></div><button className="modal-close" onClick={onClose} aria-label="닫기">×</button></div>
+          <div className="lesson-progress"><span style={{ width: `${((activeScene + 1) / lesson.images.length) * 100}%` }} /></div>
+          <div className="lesson-main-grid">
+            <div className="lesson-stage"><button className="lesson-stage-image" type="button" onClick={() => setIsImageExpanded(true)} aria-label={`${scene.sceneLabel} 확대해서 보기`}><img src={scene.largeThumbnail} alt={scene.sceneLabel} referrerPolicy="no-referrer" /><span className="lesson-stage-image-hint">이미지 확대 보기 ↗</span></button><div className="lesson-stage-count">SCENE {String(activeScene + 1).padStart(2, "0")} / {String(lesson.images.length).padStart(2, "0")}</div></div>
+            <div className="lesson-explanation"><span className="lesson-kicker">{lesson.statute}</span><h3>이 장면에서<br /><em>기억할 한 문장</em></h3><p>{lesson.answer}</p><div className="lesson-question-box"><span>문제와 연결</span><strong>{lesson.questionLabel}</strong><p>{lesson.summary}</p></div><a className="source-link" href={lesson.sourceUrl} target="_blank" rel="noreferrer">기출 원문 PDF 보기 <Arrow /></a></div>
+          </div>
+          <div className="scene-strip" aria-label="해설 장면 목록">{lesson.images.map((image, index) => <button key={image.id} className={activeScene === index ? "active" : ""} onClick={() => setActiveScene(index)}><img src={image.thumbnail} alt="" loading="lazy" referrerPolicy="no-referrer" /><span>{String(index + 1).padStart(2, "0")}</span></button>)}</div>
+          <div className="lesson-modal-footer"><span>이미지를 누르면 전체 화면으로 확대해 세부 내용을 볼 수 있습니다.</span><button className="primary-button" onClick={onClose}>해설서 닫기 <Arrow /></button></div>
+        </section>
+      </div>}
+      {isImageExpanded && <ImageLightbox image={scene} onClose={() => setIsImageExpanded(false)} />}
+    </>
   );
 }
 

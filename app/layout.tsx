@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "케이스룸 | 보상관리사 기출학습",
-  description: "법정드라마처럼 읽고, 사건처럼 기억하는 보상관리사 학습 공간",
+  title: "보상관리사 시험 | 기출문제·문제풀이",
+  description: "보상관리사 시험 기출문제를 풀고, 오답과 시각 해설로 복습하는 학습 공간",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

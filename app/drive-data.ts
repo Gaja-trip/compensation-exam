@@ -5,6 +5,7 @@ export type DriveImage = {
   title: string;
   sceneLabel: string;
   thumbnail: string;
+  largeThumbnail: string;
   driveUrl: string;
 };
 
@@ -35,6 +36,7 @@ function image(id: string, title: string): DriveImage {
     title,
     sceneLabel,
     thumbnail: `https://drive.google.com/thumbnail?id=${id}&sz=w1400`,
+    largeThumbnail: `https://drive.google.com/thumbnail?id=${id}&sz=w2200`,
     driveUrl: `https://drive.google.com/file/d/${id}/view?usp=drivesdk`,
   };
 }
