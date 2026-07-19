@@ -218,9 +218,15 @@ export default function Home() {
 
   const openNextQuestion = () => {
     if (!selectedQuestion) return;
-    const pool = activeQuestionPool.length ? activeQuestionPool : (filteredQuestions.length ? filteredQuestions : examQuestions);
+    const pool = activeQuestionPool.length > 1
+      ? activeQuestionPool
+      : filteredQuestions.length > 1
+        ? filteredQuestions
+        : examQuestions;
+    if (pool.length === 0) return;
     const currentIndex = pool.findIndex((question) => question.id === selectedQuestion.id);
-    openQuestion(pool[(currentIndex + 1 + pool.length) % pool.length], pool);
+    const nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % pool.length;
+    openQuestion(pool[nextIndex], pool);
   };
 
   const openVisualLesson = (lesson: VisualLesson) => setSelectedLesson(lesson);
@@ -312,7 +318,7 @@ export default function Home() {
         </div>
       </section>
 
-      {selectedQuestion && <QuestionModal question={selectedQuestion} selectedAnswer={selectedAnswer} answerRevealed={answerRevealed} isBookmarked={bookmarkedIds.includes(selectedQuestion.id)} onChoose={chooseAnswer} onClose={closeQuestion} onNext={openNextQuestion} onToggleBookmark={toggleBookmark} onOpenVisualLesson={openQuestionVisualLesson} />}
+      {selectedQuestion && <QuestionModal key={selectedQuestion.id} question={selectedQuestion} selectedAnswer={selectedAnswer} answerRevealed={answerRevealed} isBookmarked={bookmarkedIds.includes(selectedQuestion.id)} onChoose={chooseAnswer} onClose={closeQuestion} onNext={openNextQuestion} onToggleBookmark={toggleBookmark} onOpenVisualLesson={openQuestionVisualLesson} />}
       {selectedLesson && <VisualLessonModal lesson={selectedLesson} onClose={() => setSelectedLesson(null)} />}
     </main>
   );
@@ -501,7 +507,13 @@ function QuestionModal({ question, selectedAnswer, answerRevealed, isBookmarked,
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <section className="case-modal exam-question-modal" role="dialog" aria-modal="true" aria-labelledby="case-modal-title">
-        <div className="modal-header"><div><p className="eyebrow">{question.year}년 보상관리사 {question.phase}차 · {question.subject}</p><h2 id="case-modal-title">기출문제 <em>풀이</em></h2></div><button className="modal-close" autoFocus onClick={onClose} aria-label="닫기"><Icon name="close" size={20} /></button></div>
+        <div className="modal-header exam-question-header">
+          <div><p className="eyebrow">{question.year}년 보상관리사 {question.phase}차 · {question.subject}</p><h2 id="case-modal-title">기출문제 <em>풀이</em></h2></div>
+          <div className="exam-question-header-actions">
+            <button className="question-next-button" type="button" onClick={onNext} aria-label={answerRevealed ? "다음 문제로 이동" : "이 문제를 건너뛰고 다음 문제로 이동"}><span className="question-next-label-wide">다음 문제</span><span className="question-next-label-short">다음</span><Icon name="arrow" size={17} /></button>
+            <button className="modal-close" type="button" autoFocus onClick={onClose} aria-label="닫기"><Icon name="close" size={20} /></button>
+          </div>
+        </div>
         <div className="modal-progress"><span style={{ width: answerRevealed ? "100%" : "45%" }} /></div>
         <div className="scene-header"><span>QUESTION {String(question.number).padStart(2, "0")}</span><strong>{sourceSummary(question)}</strong></div>
         <div className="exam-question-guide"><span>풀이 가이드</span><p>{questionDirection(question.stem)}</p></div>
@@ -519,7 +531,7 @@ function QuestionModal({ question, selectedAnswer, answerRevealed, isBookmarked,
 
         {answerRevealed && <details className="source-details"><summary>원문 출처와 페이지 확인</summary><p>문제지: {question.source.questionPdf} · p.{question.source.questionPage}</p><p>정답표: {question.source.answerPdf} · p.{question.source.answerPage}</p></details>}
 
-        <div className="modal-footer exam-modal-footer"><button className={`outline-button ${isBookmarked ? "active" : ""}`} onClick={() => onToggleBookmark(question.id)}><Icon name="bookmark" size={15} /> {isBookmarked ? "복습 저장 해제" : "오답노트에 저장"}</button><div className="exam-modal-actions">{visualLessonAvailable && <button className="text-button" onClick={() => onOpenVisualLesson(question)}>시각 해설서 <Icon name="book" size={15} /></button>}<button className="primary-button" disabled={!answerRevealed} onClick={onNext}>다음 문제 <Icon name="arrow" size={16} /></button></div></div>
+        <div className="modal-footer exam-modal-footer"><button className={`outline-button ${isBookmarked ? "active" : ""}`} onClick={() => onToggleBookmark(question.id)}><Icon name="bookmark" size={15} /> {isBookmarked ? "복습 저장 해제" : "오답노트에 저장"}</button><div className="exam-modal-actions">{visualLessonAvailable && <button className="text-button" onClick={() => onOpenVisualLesson(question)}>시각 해설서 <Icon name="book" size={15} /></button>}<button className="primary-button" onClick={onNext}>다음 문제 <Icon name="arrow" size={16} /></button></div></div>
       </section>
     </div>
   );
